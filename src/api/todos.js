@@ -1,4 +1,4 @@
-import { apiFetch } from './api';
+import { apiFetch } from '../services/api';
 
 export function getTodos(token) {
   return apiFetch('/todos', { method: 'GET' }, token);

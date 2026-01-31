@@ -1,4 +1,4 @@
-import { apiFetch } from './api';
+import { apiFetch } from '../services/api';
 
 // get all tasks
 export function getTasks() {

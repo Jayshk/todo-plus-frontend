@@ -1,55 +1,64 @@
-import { useEffect, useState } from 'react';
-import { getMe } from '../api/auth';
-import { getTasks } from '../api/tasks';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { apiFetch } from "../services/api";
+import AddTodo from "../components/AddTodo";
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
-  const [tasks, setTasks] = useState([]);
+  const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    Promise.all([getMe(), getTasks()])
-      .then(([userData, taskData]) => {
-        setUser(userData);
-        setTasks(taskData);
-      })
-      .catch(() => {
-        localStorage.removeItem('token');
-        navigate('/login');
-      })
-      .finally(() => setLoading(false));
+    fetchTodos();
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+  const fetchTodos = async () => {
+    try {
+      const data = await apiFetch("/todos"); // use apiFetch
+      setTodos(data);
+    } catch (error) {
+      console.error("Failed to fetch todos:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <p>Loading...</p>;
+  const handleTodoAdded = (newTodo) => {
+    setTodos(prevTodos => [...prevTodos, newTodo]);
+  };
+
+  const total = todos.length;
+  const completed = todos.filter(t => t.completed).length;
+  const pending = total - completed;
+
+  if (loading) return <p>Loading Dashboard...</p>;
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Dashboard</h1>
-      <p>Welcome, {user.email}</p>
+      <div style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
+        <div style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
+          <h3>Total Todos</h3>
+          <p>{total}</p>
+        </div>
+        <div style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
+          <h3>Completed</h3>
+          <p>{completed}</p>
+        </div>
+        <div style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
+          <h3>Pending</h3>
+          <p>{pending}</p>
+        </div>
+      </div>
 
-      <button onClick={logout}>Logout</button>
+      <AddTodo onTodoAdded={handleTodoAdded} />
 
-      <h2>Tasks</h2>
-
-      {tasks.length === 0 ? (
-        <p>No tasks found</p>
-      ) : (
-        <ul>
-          {tasks.map((task) => (
-            <li key={task._id || task.id}>
-              <strong>{task.title}</strong> — {task.description}
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2>Recent Todos</h2>
+      <ul>
+        {todos.slice(-5).reverse().map(todo => (
+          <li key={todo.id}>
+            {todo.title} - {todo.completed ? "Done" : "Pending"}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

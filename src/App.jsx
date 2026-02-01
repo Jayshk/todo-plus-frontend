@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import Register from "./pages/Register";
 
 export default function App() {
   const token = localStorage.getItem("token");
@@ -20,6 +21,12 @@ export default function App() {
         element={token ? <Navigate to="/dashboard" /> : <Login />}
       />
 
+      {/* Register */}
+      <Route
+        path="/register"
+        element={<Register/>}
+      />
+           
       {/* Protected Dashboard */}
       <Route
         path="/dashboard"

@@ -1,11 +1,11 @@
-const BASE_URL = 'http://localhost:3000'; // Replace with your API base URL
-
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export async function apiFetch(path, options = {}) {
-  const token = localStorage.getItem('token'); // if your backend uses auth
+  const token = localStorage.getItem("token");
 
   const headers = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
@@ -16,7 +16,7 @@ export async function apiFetch(path, options = {}) {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || 'API Error');
+    throw new Error(error.message || "API Error");
   }
 
   return res.json();

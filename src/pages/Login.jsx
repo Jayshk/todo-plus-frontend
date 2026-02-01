@@ -54,6 +54,16 @@ export default function Login() {
           Login
         </button>
 
+        <p className="text-sm text-center">
+          Don’t have an account?{" "}
+          <span
+            className="text-blue-600 cursor-pointer"
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </p>
+
         {error && <p className="text-red-500 text-sm">{error}</p>}
       </form>
     </div>

@@ -11,7 +11,7 @@ const AddTodo = ({ onTodoAdded }) => {
     try {
       const newTodo = await apiFetch("/todos", {
         method: "POST",
-        body: JSON.stringify({ title, completed: false }),
+        body: JSON.stringify({ title, status: "todo" })
       });
 
       onTodoAdded(newTodo); // update parent list

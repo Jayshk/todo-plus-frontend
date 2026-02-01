@@ -11,10 +11,10 @@ export const addTodo = (data) => {
   });
 };
 
-export const toggleTodo = (id, completed) => {
+export const updateTodo = (id, status) => {
   return apiFetch(`/todos/${id}`, {
-    method: "PUT",
-    body: JSON.stringify({ completed }),
+    method: "PATCH",
+    body: JSON.stringify({ status }),
   });
 };
 
@@ -24,10 +24,8 @@ export const deleteTodo = (id) => {
   });
 };
 
-export const updateTodo = (id, status) => {
-    return apiFetch(`/todos/${id}`,{
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-    })
-}
-
+export const updateTodoTitle = (id, title) =>
+  apiFetch(`/todos/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ title }),
+  });

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import TodoList from "../components/TodoList";
 import { fetchTodos } from "../services/todos";
+import Navbar from "../components/Navbar";
+import { TodoProvider, useTodos } from "../context/TodoContext";
 
 export default function Dashboard() {
   const [todos, setTodos] = useState([]);
@@ -25,10 +27,14 @@ export default function Dashboard() {
   const completed = todos.filter(t => t.status === "done").length;
   const pending = total - completed;
 
-  if (loading) return <p>Loading Dashboard...</p>;
+ 
+
+  if (loading) return <p className="text-center">Loading...</p>;
+
 
   return (
     <div className="p-6 space-y-6">
+      <Navbar/>
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       <div className="grid grid-cols-3 gap-4">
@@ -37,7 +43,9 @@ export default function Dashboard() {
         <Stat title="Pending" value={pending} />
       </div>
 
-      <TodoList todos={todos} setTodos={setTodos} />
+      <TodoProvider>
+        <TodoList todos={todos} setTodos={setTodos} />
+      </TodoProvider>
     </div>
   );
 }

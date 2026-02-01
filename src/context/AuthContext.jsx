@@ -1,32 +1,36 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("accessToken"));
-  const [refreshToken, setRefreshToken] = useState(
+  const [token, setToken] = useState(() => localStorage.getItem("accessToken"));
+  const [refreshToken, setRefreshToken] = useState(() =>
     localStorage.getItem("refreshToken")
   );
   const [user, setUser] = useState(null);
 
-  // Decode JWT on token change
+  // Decode token whenever it changes
   useEffect(() => {
-    if (!token) return setUser(null);
+    if (!token) {
+      setUser(null);
+      return;
+    }
 
     try {
       const decoded = jwtDecode(token);
+
       if (decoded.exp * 1000 < Date.now()) {
         logout();
       } else {
         setUser(decoded);
       }
-    } catch {
+    } catch (err) {
+      console.error("Invalid token", err);
       logout();
     }
   }, [token]);
 
-  // Login function
   const login = (accessToken, refreshToken) => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
@@ -35,7 +39,6 @@ export function AuthProvider({ children }) {
     setRefreshToken(refreshToken);
   };
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -45,41 +48,51 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  // Refresh access token
   const refreshAccessToken = async () => {
     if (!refreshToken) throw new Error("No refresh token");
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/auth/refresh`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken }),
-        }
-      );
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/auth/refresh`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      }
+    );
 
-      if (!res.ok) throw new Error("Refresh failed");
-
-      const data = await res.json();
-
-      localStorage.setItem("accessToken", data.accessToken);
-      setToken(data.accessToken);
-
-      return data.accessToken;
-    } catch (err) {
+    if (!res.ok) {
       logout();
-      throw err;
+      throw new Error("Refresh token expired");
     }
+
+    const data = await res.json();
+
+    localStorage.setItem("accessToken", data.accessToken);
+    setToken(data.accessToken);
+
+    return data.accessToken;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, refreshToken, login, logout, refreshAccessToken }}
+      value={{
+        user,
+        token,
+        refreshToken,
+        login,
+        logout,
+        refreshAccessToken,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+  return ctx;
+};

@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTodos } from "../context/TodoContext";
 
-const AddTodo = () => {
+export default function AddTodo() {
   const [title, setTitle] = useState("");
   const { addTodo } = useTodos();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    const trimmed = title.trim();
+    if (!trimmed) return;
 
     try {
-      await addTodo(title);
-      setTitle("");
+      await addTodo(trimmed); // Uses context's addTodo (API + optimistic update)
+      setTitle(""); // clear input on success
     } catch (err) {
       console.error("Failed to add todo:", err);
     }
@@ -37,6 +38,4 @@ const AddTodo = () => {
       </button>
     </form>
   );
-};
-
-export default AddTodo;
+}

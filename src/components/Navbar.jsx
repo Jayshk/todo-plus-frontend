@@ -1,22 +1,27 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  const logout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 
   return (
-    <div className="flex justify-between items-center p-4 border-b">
-      <h1 className="font-semibold">Todo App</h1>
+    <nav className="flex items-center justify-between px-6 py-4 bg-white border-b shadow-sm">
+      <h1 className="text-lg font-semibold tracking-tight text-gray-800">
+        Todo App
+      </h1>
+
       <button
-        onClick={logout}
-        className="text-red-600 text-sm"
+        onClick={handleLogout}
+        className="text-sm font-medium text-red-500 hover:text-red-600 transition"
       >
         Logout
       </button>
-    </div>
+    </nav>
   );
 }

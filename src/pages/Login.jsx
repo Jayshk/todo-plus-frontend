@@ -59,7 +59,7 @@ export default function Login() {
         <p className="text-sm text-center">
           Don’t have an account?{" "}
           <span
-            className="text-blue-600 cursor-pointer"
+            className="text-blue-600 cursor-pointer hover:underline"
             onClick={() => navigate("/register")}
           >
             Register

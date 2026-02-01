@@ -71,6 +71,28 @@ export const TodoProvider = ({ children }) => {
     }
   };
 
+  // ---------------- UPDATE TODO ----------------
+  const updateTodo = async (id, newTitle) => {
+    const prev = todos;
+
+    // Optimistic update
+    setTodos((t) =>
+      t.map((todo) => (todo._id === id ? { ...todo, title: newTitle } : todo))
+    );
+
+    try {
+      await apiFetch(`/todos/${id}`, {
+        method: "PATCH", // or PATCH depending on your backend
+        body: JSON.stringify({ title: newTitle }),
+      });
+    } catch (err) {
+      console.error("Failed to update todo:", err);
+      setTodos(prev); // rollback on failure
+    }
+  };
+
+
+
   return (
     <TodoContext.Provider
       value={{
@@ -80,6 +102,7 @@ export const TodoProvider = ({ children }) => {
         addTodo,
         toggleTodo,
         deleteTodo,
+        updateTodo,
       }}
     >
       {children}

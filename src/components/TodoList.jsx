@@ -1,66 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { getTodos, deleteTodo, updateTodo } from "../services/api";
+import { deleteTodo, toggleTodo } from "../services/todos";
 import AddTodo from "./AddTodo";
 
-const TodoList = () => {
-  const [todos, setTodos] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function TodoList({ todos, setTodos }) {
+  const toggleStatus = async (todo) => {
+    const updated = await toggleTodo(
+      todo._id,
+      todo.status === "completed" ? "todo" : "completed"
+    );
 
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  const fetchTodos = async () => {
-    try {
-      const res = await getTodos();
-      setTodos(res.data);
-    } catch (error) {
-      console.error("Failed to fetch todos:", error);
-    } finally {
-      setLoading(false);
-    }
+    setTodos(prev =>
+      prev.map(t => (t._id === updated._id ? updated : t))
+    );
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteTodo(id);
-      setTodos(todos.filter(todo => todo.id !== id));
-    } catch (error) {
-      console.error("Failed to delete:", error);
-    }
+  const removeTodo = async (id) => {
+    await deleteTodo(id);
+    setTodos(prev => prev.filter(t => t._id !== id));
   };
-
-  const toggleComplete = async (todo) => {
-    try {
-      await updateTodo(todo.id, { ...todo, completed: !todo.completed });
-      setTodos(
-        todos.map(t => (t.id === todo.id ? { ...t, completed: !t.completed } : t))
-      );
-    } catch (error) {
-      console.error("Failed to update:", error);
-    }
-  };
-
-  if (loading) return <p>Loading...</p>;
 
   return (
-    <>
-    <AddTodo onTodoAdded={(newTodo) => setTodos([...todos, newTodo])} />
-    <ul>
-      {todos.map(todo => (
-        <li key={todo.id}>
-          <span
-            style={{ textDecoration: todo.completed ? "line-through" : "none", cursor: "pointer" }}
-            onClick={() => toggleComplete(todo)}
-          >
-            {todo.title}
-          </span>
-          <button onClick={() => handleDelete(todo.id)}>Delete</button>
-        </li>
-      ))}
-    </ul>
-    </>
-  );
-};
+    <div className="space-y-4">
+      <AddTodo onTodoAdded={t => setTodos(prev => [...prev, t])} />
 
-export default TodoList;
+      <ul className="space-y-2">
+        {todos.map(todo => (
+          <li key={todo._id} className="flex justify-between border p-2 rounded">
+            <span
+              onClick={() => toggleStatus(todo)}
+              className={`cursor-pointer ${
+                todo.status === "completed" ? "line-through text-gray-400" : ""
+              }`}
+            >
+              {todo.title}
+            </span>
+
+            <button
+              onClick={() => removeTodo(todo._id)}
+              className="text-red-500"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

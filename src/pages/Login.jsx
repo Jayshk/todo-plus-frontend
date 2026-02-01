@@ -19,7 +19,7 @@ export default function Login() {
       });
 
       // ✅ correct token save
-      localStorage.setItem("token", res.token);
+      localStorage.setItem("token", res.accessToken);
 
       navigate("/dashboard");
     } catch (err) {

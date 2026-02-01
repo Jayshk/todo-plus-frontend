@@ -1,64 +1,50 @@
-import React, { useEffect, useState } from "react";
-import { apiFetch } from "../services/api";
-import AddTodo from "../components/AddTodo";
+import { useEffect, useState } from "react";
+import TodoList from "../components/TodoList";
+import { fetchTodos } from "../services/todos";
 
 export default function Dashboard() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTodos();
+    loadTodos();
   }, []);
 
-  const fetchTodos = async () => {
+  const loadTodos = async () => {
     try {
-      const data = await apiFetch("/todos"); // use apiFetch
+      const data = await fetchTodos();
       setTodos(data);
-    } catch (error) {
-      console.error("Failed to fetch todos:", error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTodoAdded = (newTodo) => {
-    setTodos(prevTodos => [...prevTodos, newTodo]);
-  };
-
   const total = todos.length;
-  const completed = todos.filter(t => t.completed).length;
+  const completed = todos.filter(t => t.status === "done").length;
   const pending = total - completed;
 
   if (loading) return <p>Loading Dashboard...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Dashboard</h1>
-      <div style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
-        <div style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
-          <h3>Total Todos</h3>
-          <p>{total}</p>
-        </div>
-        <div style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
-          <h3>Completed</h3>
-          <p>{completed}</p>
-        </div>
-        <div style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
-          <h3>Pending</h3>
-          <p>{pending}</p>
-        </div>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+
+      <div className="grid grid-cols-3 gap-4">
+        <Stat title="Total" value={total} />
+        <Stat title="Completed" value={completed} />
+        <Stat title="Pending" value={pending} />
       </div>
 
-      <AddTodo onTodoAdded={handleTodoAdded} />
-
-      <h2>Recent Todos</h2>
-      <ul>
-        {todos.slice(-5).reverse().map(todo => (
-          <li key={todo.id}>
-            {todo.title} - {todo.completed ? "Done" : "Pending"}
-          </li>
-        ))}
-      </ul>
+      <TodoList todos={todos} setTodos={setTodos} />
     </div>
   );
 }
+
+const Stat = ({ title, value }) => (
+  <div className="p-4 border rounded-lg text-center">
+    <h3 className="font-semibold">{title}</h3>
+    <p className="text-xl">{value}</p>
+  </div>
+);

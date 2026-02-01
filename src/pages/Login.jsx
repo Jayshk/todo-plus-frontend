@@ -1,55 +1,61 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../api/auth';
-import { getTodos } from '../api/todos';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../services/api";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      const res = await login(email, password);
-      localStorage.setItem('token', res.accessToken);
-      navigate('/dashboard');
+      const res = await apiFetch("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+
+      // ✅ correct token save
+      localStorage.setItem("token", res.token);
+
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     }
   };
 
-  const token = localStorage.getItem('token');
-
-    getTodos(token)
-    .then(data => console.log(data))
-    .catch(err => console.error(err.message));
-
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="min-h-screen flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm bg-white p-6 rounded shadow space-y-4"
+      >
+        <h2 className="text-xl font-bold text-center">Login</h2>
 
-      <form onSubmit={handleSubmit}>
         <input
+          className="w-full border p-2 rounded"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
+          className="w-full border p-2 rounded"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button type="submit">Login</button>
-      </form>
+        <button className="w-full bg-blue-500 text-white p-2 rounded">
+          Login
+        </button>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </form>
     </div>
   );
 }

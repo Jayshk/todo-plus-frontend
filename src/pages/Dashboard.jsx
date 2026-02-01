@@ -1,41 +1,25 @@
-import { useEffect, useState } from "react";
-import TodoList from "../components/TodoList";
-import { fetchTodos } from "../services/todos";
+import { useEffect } from "react";
 import Navbar from "../components/Navbar";
+import AddTodo from "../components/AddTodo";
+import TodoList from "../components/TodoList";
 import { useTodos } from "../context/TodoContext";
 
-
 export default function Dashboard() {
-  const { todos } = useTodos();
-  const [loading, setLoading] = useState(true);
+  const { todos, loadTodos, loading } = useTodos();
 
   useEffect(() => {
     loadTodos();
   }, []);
 
-  const loadTodos = async () => {
-    try {
-      const data = await fetchTodos();
-      setTodos(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const total = todos.length;
   const completed = todos.filter(t => t.status === "done").length;
   const pending = total - completed;
 
- 
-
   if (loading) return <p className="text-center">Loading...</p>;
-
 
   return (
     <div className="p-6 space-y-6">
-      <Navbar/>
+      <Navbar />
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       <div className="grid grid-cols-3 gap-4">
@@ -44,7 +28,8 @@ export default function Dashboard() {
         <Stat title="Pending" value={pending} />
       </div>
 
-      <TodoList todos={todos} setTodos={setTodos} />
+      <AddTodo />
+      <TodoList />
     </div>
   );
 }

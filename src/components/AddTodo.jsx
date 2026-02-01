@@ -1,46 +1,28 @@
-import React, { useState } from "react";
-import { apiFetch } from "../services/api";
+import { useState } from "react";
+import { useTodos } from "../context/TodoContext";
 
-const AddTodo = ({ onTodoAdded }) => {
+export default function AddTodo() {
   const [title, setTitle] = useState("");
+  const { addTodo } = useTodos();
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-
-    try {
-      const newTodo = await apiFetch("/todos", {
-        method: "POST",
-        body: JSON.stringify({ title, status: "todo" })
-      });
-
-      onTodoAdded(newTodo); // update parent list
-      setTitle(""); // clear input
-    } catch (error) {
-      console.error("Failed to add todo:", error);
-    }
+    await addTodo(title);
+    setTitle("");
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex gap-2 items-center w-full max-w-md mx-auto"
-    >
+    <form onSubmit={submit} className="flex gap-2">
       <input
-        type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Add new todo"
-        className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="border p-2 flex-1"
+        placeholder="New todo"
       />
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition-colors"
-      >
+      <button className="bg-blue-500 text-white px-4 rounded">
         Add
       </button>
     </form>
   );
-};
-
-export default AddTodo;
+}

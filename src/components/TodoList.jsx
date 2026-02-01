@@ -2,6 +2,7 @@ import { useState } from "react";
 import { updateTodo, deleteTodo } from "../services/todos";
 import AddTodo from "./AddTodo";
 import EditTodo from "./EditTodo";
+import { useTodos } from "../context/TodoContext";
 
 export default function TodoList({ todos, setTodos }) {
   const toggleStatus = async (todo) => {
@@ -48,13 +49,15 @@ export default function TodoList({ todos, setTodos }) {
   const filteredTodos = todos.filter(t =>
     filter === "all" ? true : t.status === filter
   );
+
+  const { todos, updateTodo, deleteTodo } = useTodos();
   return (
    
     <div className="space-y-4">
       <AddTodo onTodoAdded={(t) => setTodos((prev) => [...prev, t])} />
 
       <ul className="space-y-2">
-        {todos.map((todo) => (
+        {filteredTodos.map((todo) => (
           <li key={todo._id} className="flex justify-between border p-2 rounded">
             <span
               onClick={() => toggleStatus(todo)}

@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import TodoList from "../components/TodoList";
 import { fetchTodos } from "../services/todos";
 import Navbar from "../components/Navbar";
-import { TodoProvider, useTodos } from "../context/TodoContext";
+import { useTodos } from "../context/TodoContext";
+
 
 export default function Dashboard() {
-  const [todos, setTodos] = useState([]);
+  const { todos } = useTodos();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,9 +44,7 @@ export default function Dashboard() {
         <Stat title="Pending" value={pending} />
       </div>
 
-      <TodoProvider>
-        <TodoList todos={todos} setTodos={setTodos} />
-      </TodoProvider>
+      <TodoList todos={todos} setTodos={setTodos} />
     </div>
   );
 }

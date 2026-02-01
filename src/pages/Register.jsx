@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +16,7 @@ export default function Register() {
 
     try {
       const data = await register(email, password);
-      localStorage.setItem("token", data.accessToken);
+      login(data.accessToken);
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);

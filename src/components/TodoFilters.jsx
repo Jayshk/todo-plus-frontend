@@ -5,7 +5,9 @@ export default function TodoFilters({ filter, setFilter }) {
         <button
           key={f}
           onClick={() => setFilter(f)}
-          className={filter === f ? "font-bold" : ""}
+          className={`px-3 py-1 rounded border ${
+            filter === f ? "bg-blue-500 text-white" : ""
+          }`}
         >
           {f.toUpperCase()}
         </button>

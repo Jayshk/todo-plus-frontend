@@ -2,10 +2,13 @@ import { useState } from "react";
 import { useTodos } from "../context/TodoContext";
 import AddTodo from "./AddTodo";
 import EditTodo from "./EditTodo";
+import TodoFilters from "./TodoFilters";
 
 export default function TodoList() {
   const { todos, toggleTodo, deleteTodo, updateTodo, loading } = useTodos();
   const [editingId, setEditingId] = useState(null);
+  const [filter, setFilter] = useState("all");
+
 
   const handleSave = (id, newTitle) => {
     updateTodo(id, newTitle);
@@ -22,12 +25,19 @@ export default function TodoList() {
       </div>
     );
 
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === "done") return todo.status === "done";
+    if (filter === "todo") return todo.status === "todo";
+    return true;
+  });
+
   return (
     <div className="space-y-4">
       <AddTodo />
+      <TodoFilters filter={filter} setFilter={setFilter} />
 
       <ul className="space-y-2">
-        {todos.map((todo) => (
+        {filteredTodos.map((todo) => (
           <li
             key={todo._id}
             className="flex justify-between items-center border p-2 rounded"
@@ -40,22 +50,34 @@ export default function TodoList() {
               />
             ) : (
               <>
-                <span
-                  onClick={() => toggleTodo(todo)}
-                  className={`cursor-pointer ${
-                    todo.status === "done" ? "line-through text-gray-400" : ""
-                  }`}
-                >
-                  {todo.title}
-                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={todo.status === "done"}
+                    onChange={() => toggleTodo(todo)}
+                  />
+
+                  <span
+                    className={`cursor-pointer ${
+                      todo.status === "done" ? "line-through text-gray-400" : ""
+                    }`}
+                  >
+                    {todo.title}
+                  </span>
+                </div>
+
 
                 <div className="flex gap-2">
                   <button
                     onClick={() => setEditingId(todo._id)}
-                    className="text-blue-500"
+                    disabled={todo.status === "done"}
+                    className={`text-blue-500 ${
+                      todo.status === "done" ? "opacity-40 cursor-not-allowed" : ""
+                    }`}
                   >
                     ✏️
                   </button>
+
                   <button
                     onClick={() => deleteTodo(todo._id)}
                     className="text-red-500"

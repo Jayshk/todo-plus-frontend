@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import Navbar from "../components/Navbar";
-import AddTodo from "../components/AddTodo";
 import TodoList from "../components/TodoList";
 import { useTodos } from "../context/TodoContext";
 
 export default function Dashboard() {
-  const { todos, loadTodos, loading } = useTodos();
+  const { todos, loading, loadTodos } = useTodos();
 
   useEffect(() => {
     loadTodos();
@@ -20,6 +19,7 @@ export default function Dashboard() {
   return (
     <div className="p-6 space-y-6">
       <Navbar />
+
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       <div className="grid grid-cols-3 gap-4">
@@ -28,7 +28,6 @@ export default function Dashboard() {
         <Stat title="Pending" value={pending} />
       </div>
 
-      <AddTodo />
       <TodoList />
     </div>
   );

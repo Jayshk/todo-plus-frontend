@@ -21,7 +21,7 @@ export default function Login() {
       });
 
       // ✅ correct token save
-      login(res.accessToken);
+      login(res.accessToken, res.refreshToken);
 
       navigate("/dashboard");
     } catch (err) {

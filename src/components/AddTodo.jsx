@@ -1,28 +1,42 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTodos } from "../context/TodoContext";
 
-export default function AddTodo() {
+const AddTodo = () => {
   const [title, setTitle] = useState("");
   const { addTodo } = useTodos();
 
-  const submit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-    await addTodo(title);
-    setTitle("");
+
+    try {
+      await addTodo(title);
+      setTitle("");
+    } catch (err) {
+      console.error("Failed to add todo:", err);
+    }
   };
 
   return (
-    <form onSubmit={submit} className="flex gap-2">
+    <form
+      onSubmit={handleSubmit}
+      className="flex gap-2 items-center w-full max-w-md mx-auto"
+    >
       <input
+        type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="border p-2 flex-1"
-        placeholder="New todo"
+        placeholder="Add new todo"
+        className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <button className="bg-blue-500 text-white px-4 rounded">
+      <button
+        type="submit"
+        className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition-colors"
+      >
         Add
       </button>
     </form>
   );
-}
+};
+
+export default AddTodo;

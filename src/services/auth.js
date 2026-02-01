@@ -1,15 +1,17 @@
-import { apiFetch } from "./api";
+import { useApi } from "../hooks/useApi";
 
-export const login = (email, password) => {
-  return apiFetch("/auth/login", {
+export const useAuthApi = () => {
+  const { apiFetch } = useApi();
+
+  const login = (email, password) => apiFetch("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
-};
 
-export const register = (email, password) => {
-  return apiFetch("/auth/register", {
+  const register = (email, password) => apiFetch("/auth/register", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
+
+  return { login, register };
 };

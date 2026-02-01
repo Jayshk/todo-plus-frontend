@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../services/auth";
+
 import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
@@ -16,7 +16,7 @@ export default function Register() {
 
     try {
       const data = await register(email, password);
-      login(data.accessToken);
+      login(data.accessToken, data.refreshToken);
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);

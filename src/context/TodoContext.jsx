@@ -1,33 +1,44 @@
 import { createContext, useContext, useState } from "react";
-import * as todoApi from "../services/todos";
+import { useApi } from "../hooks/useApi";
 
 const TodoContext = createContext();
 
 export const TodoProvider = ({ children }) => {
+  const { apiFetch } = useApi(); // ✅ SAFE hook usage
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // ---------------- LOAD TODOS ----------------
   const loadTodos = async () => {
     setLoading(true);
     try {
-      const data = await todoApi.fetchTodos();
+      const data = await apiFetch("/todos");
       setTodos(data);
+    } catch (err) {
+      console.error("Failed to load todos", err);
     } finally {
       setLoading(false);
     }
   };
 
+  // ---------------- ADD TODO ----------------
   const addTodo = async (title) => {
-    const todo = await todoApi.addTodo({
-      title,
-      status: "todo",
+    const todo = await apiFetch("/todos", {
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        status: "todo",
+      }),
     });
+
     setTodos((prev) => [...prev, todo]);
   };
 
+  // ---------------- TOGGLE TODO ----------------
   const toggleTodo = async (todo) => {
     const newStatus = todo.status === "done" ? "todo" : "done";
 
+    // optimistic update
     setTodos((prev) =>
       prev.map((t) =>
         t._id === todo._id ? { ...t, status: newStatus } : t
@@ -35,21 +46,27 @@ export const TodoProvider = ({ children }) => {
     );
 
     try {
-      await todoApi.updateTodo(todo._id, newStatus);
-    } catch {
+      await apiFetch(`/todos/${todo._id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: newStatus }),
+      });
+    } catch (err) {
+      // rollback on failure
       setTodos((prev) =>
         prev.map((t) => (t._id === todo._id ? todo : t))
       );
     }
   };
 
+  // ---------------- DELETE TODO ----------------
   const deleteTodo = async (id) => {
     const prev = todos;
+
     setTodos((t) => t.filter((x) => x._id !== id));
 
     try {
-      await todoApi.deleteTodo(id);
-    } catch {
+      await apiFetch(`/todos/${id}`, { method: "DELETE" });
+    } catch (err) {
       setTodos(prev);
     }
   };

@@ -1,33 +1,43 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import ProtectedRoute from "./routes/ProtectedRoute";
 import Register from "./pages/Register";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
+import { useAuth } from "./context/AuthContext";
+
 
 export default function App() {
-  const token = localStorage.getItem("token");
+  const { token } = useAuth();
 
   return (
     <Routes>
-      {/* Default redirect */}
+      {/* Default route */}
       <Route
         path="/"
         element={<Navigate to={token ? "/dashboard" : "/login"} />}
       />
 
-      {/* Login */}
+      {/* Public routes */}
       <Route
         path="/login"
-        element={token ? <Navigate to="/dashboard" /> : <Login />}
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
       />
 
-      {/* Register */}
       <Route
         path="/register"
-        element={<Register/>}
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
       />
-           
-      {/* Protected Dashboard */}
+
+      {/* Protected routes */}
       <Route
         path="/dashboard"
         element={

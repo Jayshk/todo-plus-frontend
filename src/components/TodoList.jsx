@@ -1,11 +1,11 @@
-import { deleteTodo, toggleTodo } from "../services/todos";
+import { updateTodo, deleteTodo } from "../services/todos";
 import AddTodo from "./AddTodo";
 
 export default function TodoList({ todos, setTodos }) {
   const toggleStatus = async (todo) => {
-    const updated = await toggleTodo(
+    const updated = await updateTodo(
       todo._id,
-      todo.status === "completed" ? "todo" : "completed"
+      todo.status === "done" ? "todo" : "done"
     );
 
     setTodos(prev =>
@@ -28,7 +28,7 @@ export default function TodoList({ todos, setTodos }) {
             <span
               onClick={() => toggleStatus(todo)}
               className={`cursor-pointer ${
-                todo.status === "completed" ? "line-through text-gray-400" : ""
+                todo.status === "done" ? "line-through text-gray-400" : ""
               }`}
             >
               {todo.title}

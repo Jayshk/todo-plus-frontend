@@ -24,4 +24,10 @@ export const deleteTodo = (id) => {
   });
 };
 
+export const updateTodo = (id, status) => {
+    return apiFetch(`/todos/${id}`,{
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+    })
+}
 
